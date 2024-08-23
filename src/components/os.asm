@@ -83,7 +83,11 @@ search_loop:
     ; Move to the start of the value
     add rsi, rcx
     mov rdx, buffer_size
-    sub rdx, (rsi - rbx)     ; Calculate the remaining buffer size after prefix
+    mov rax, rsi        ; Load rsi into rax
+    sub rax, rbx        ; rax = rsi - rbx
+    mov rdx, buffer_size; Load buffer_size into rdx
+    sub rdx, rax        ; rdx = buffer_size - (rsi - rbx)
+    
 
     ; Find end of the line
 find_end:
