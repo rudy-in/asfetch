@@ -12,7 +12,7 @@ nasm -f elf64 utils.asm -o utils.o
 ld main.o utils.o -o asfetch
 ```
 
-Todo:
+## Todo:
 
 - Make the fetch detect architecure
 - Make it detect Hostname
