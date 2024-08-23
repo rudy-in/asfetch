@@ -8,7 +8,8 @@ To build `asfetch`, use `nasm` and `ld`:
 
 ```bash
 nasm -f elf64 main.asm -o main.o
-ld main.o -o asfetch
+nasm -f elf64 utils.asm -o utils.o
+ld main.o utils.o -o asfetch
 ```
 
 Todo:
