@@ -12,7 +12,7 @@ section .bss
 section .text
     global _start
     extern fetch_os
-    extern fetch_packages
+    extern fetch_pkgs
     extern fetch_shell
     extern fetch_terminal
     extern fetch_resolution
@@ -56,7 +56,7 @@ _start:
     syscall
 
     ; Fetch and print packages
-    call fetch_packages
+    call fetch_pkgs
 
     ; Print newline
     mov rax, 0x01    ; syscall number for sys_write

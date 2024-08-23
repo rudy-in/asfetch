@@ -1,11 +1,12 @@
 section .data
     filename db "/etc/os-release", 0
+    buffer_size equ 1024
     pretty_name_prefix db "PRETTY_NAME=", 0
     pretty_name_prefix_len equ $ - pretty_name_prefix
     newline db 0xA
 
 section .bss
-    buffer resb 1024           ; Uninitialized space for the buffer
+    buffer resb buffer_size
 
 section .text
     global fetch_os
@@ -26,8 +27,8 @@ fetch_os:
     ; Read the file
     mov rax, 0               ; syscall number for sys_read
     mov rsi, rdi             ; file descriptor
-    mov rdx, 1024            ; number of bytes to read (buffer_size)
-    lea rbx, [buffer]       ; Address of buffer
+    mov rdx, buffer_size     ; number of bytes to read
+    lea rdi, [buffer]
     syscall
 
     ; Close the file
@@ -81,29 +82,35 @@ search_loop:
     jne next_char
 
     ; Move to the start of the value
-    add rsi, rcx
-    mov rax, rsi            ; Load rsi into rax
+    add rsi, rcx            ; Move rsi past the prefix
+    mov rax, rsi            ; rax = rsi (current position after the prefix)
     sub rax, rbx            ; rax = rsi - rbx (length of the prefix found)
-    mov rdx, 1024           ; Load buffer_size into rdx
+    mov rdx, buffer_size    ; rdx = buffer_size (total buffer size)
     sub rdx, rax            ; rdx = buffer_size - (length of the prefix found)
+
+    ; Check if rsi has gone past the buffer end
+    cmp rsi, buffer + buffer_size
+    jae no_pretty_name      ; If rsi >= buffer + buffer_size, exit
 
     ; Find end of the line
 find_end:
     mov al, [rsi]
     cmp al, [newline]
-    je end_found
+    je end_found            ; End of line found
     inc rsi
     dec rdx
     test rdx, rdx
-    jnz find_end
-    xor rax, rax            ; Not found
+    jnz find_end           ; Continue until end of buffer
+
+    ; If newline not found, return 0
+    xor rax, rax            ; Set return value to 0 (not found)
     ret
 
 end_found:
     ; Set rax to the length of the value
-    sub rsi, rbx
-    sub rsi, pretty_name_prefix_len
-    mov rax, rsi
+    sub rsi, rbx            ; rsi - rbx = length of the value
+    sub rsi, pretty_name_prefix_len  ; Adjust length to exclude prefix
+    mov rax, rsi            ; rax = length of the value
     ret
 
 next_char:
@@ -111,6 +118,6 @@ next_char:
     inc rbx
     dec rdx
     test rdx, rdx
-    jnz search_loop
-    xor rax, rax            ; Not found
+    jnz search_loop         ; Continue searching
+    xor rax, rax            ; Set return value to 0 (not found)
     ret
