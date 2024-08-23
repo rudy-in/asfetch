@@ -16,7 +16,7 @@ section .text
         ; Use a fixed string for simplicity
         mov rax, 0x01       ; syscall number for sys_write
         mov rdi, 0x01       ; file descriptor 1 is stdout
-        mov rsi, "Intel TigerLake-LP GT2 [Iris Xe Graphics]"
+        long_string db "Intel TigerLake-LP GT2 [Iris Xe Graphics]", 0
         mov rdx, 39         ; length of GPU string
         syscall
 
