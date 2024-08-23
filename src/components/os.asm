@@ -1,12 +1,11 @@
-; src/components/os.asm
-
 section .data
     filename db "/etc/os-release", 0
-    buffer_size equ 1024
-    buffer resb buffer_size
     pretty_name_prefix db "PRETTY_NAME=", 0
     pretty_name_prefix_len equ $ - pretty_name_prefix
     newline db 0xA
+
+section .bss
+    buffer resb 1024           ; Uninitialized space for the buffer
 
 section .text
     global fetch_os
@@ -27,7 +26,8 @@ fetch_os:
     ; Read the file
     mov rax, 0               ; syscall number for sys_read
     mov rsi, rdi             ; file descriptor
-    mov rdx, buffer_size     ; number of bytes to read
+    mov rdx, 1024            ; number of bytes to read (buffer_size)
+    lea rbx, [buffer]       ; Address of buffer
     syscall
 
     ; Close the file
@@ -82,12 +82,10 @@ search_loop:
 
     ; Move to the start of the value
     add rsi, rcx
-    mov rdx, buffer_size
-    mov rax, rsi        ; Load rsi into rax
-    sub rax, rbx        ; rax = rsi - rbx
-    mov rdx, buffer_size; Load buffer_size into rdx
-    sub rdx, rax        ; rdx = buffer_size - (rsi - rbx)
-    
+    mov rax, rsi            ; Load rsi into rax
+    sub rax, rbx            ; rax = rsi - rbx (length of the prefix found)
+    mov rdx, 1024           ; Load buffer_size into rdx
+    sub rdx, rax            ; rdx = buffer_size - (length of the prefix found)
 
     ; Find end of the line
 find_end:
