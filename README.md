@@ -15,6 +15,6 @@ ld main.o utils.o -o asfetch
 
 ## Todo:
 
-- Make the fetch detect architecure
 - Make it detect Hostname
+- Fix Unknown package manager error , hostname , shell , term , resolution , cpu and gpu not showing up
 - Add ascii for distros
