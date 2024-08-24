@@ -16,7 +16,7 @@ section .text
         ; Use a fixed string for simplicity
         mov rax, 0x01       ; syscall number for sys_write
         mov rdi, 0x01       ; file descriptor 1 is stdout
-        mov rsi, "bash 5.2.32"
+        long_string db "bash 5.2.32", 0
         mov rdx, 11         ; length of shell string
         syscall
 
